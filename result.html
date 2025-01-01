@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>결과 페이지</title>
+  <link rel="stylesheet" href="result.css">
+  <script src="api"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <style>
+    body {
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #backButton {
+      background-color: #ff8001;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 13px 26px;
+      margin-bottom: 20px;
+    }
+
+    #backButton:hover {
+      background-color: #e67700;
+    }
+
+    .container-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .place-item {
+      background-color: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .place-item img {
+      max-width: 80%;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 5px;
+    }
+
+    .episode {
+      display: none;
+      margin-top: 10px;
+      text-align: justify;
+    }
+
+    .place-item.expanded {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 80%;
+      height: 80%;
+      background-color: #fff;
+      z-index: 10;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 0%;
+    }
+
+    #source-box {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 600px;
+      border: 1px solid #ff8001;
+      word-wrap: break-word; /* 텍스트가 경계를 넘지 않도록 설정 */
+      overflow: hidden; /* 넘치는 텍스트 숨기기 */
+      text-overflow: ellipsis; /* 넘칠 경우 ...으로 표시 */
+    }
+
+    #source-box h4 {
+      text-decoration: wavy;
+      font-size: 20px;
+      color: #232222;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    #source-list {
+      list-style-type: none;
+      padding-left: 0;
+      text-align: left;
+    }
+
+    #source-list li {
+      margin-bottom: 5px;
+    }
+
+    #source-list li::before {
+      content: '● ';
+      color: #474747;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      overflow: hidden; 
+      margin-top: 10px;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #showFormBtn {
+      background-color: #108800;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-top: 20px;
+    }
+
+    #showFormBtn:hover {
+      background-color: #108800;
+    }
+
+    #dataForm {
+      display: none;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    #dataForm h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    #dataForm label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    #dataForm input, #dataForm textarea {
+    width: 95%; /* 가로 길이를 80%로 줄이기 */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+    #dataForm button {
+      text-align: center;
+      background-color: #108800;
+      color: white;
+      width: 100%
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #dataForm button:hover {
+      background-color: #108800;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="header-title"></h1>
+  <div class="container">
+    <button id="backButton" onclick="goBack()">이전 페이지로 돌아가기</button>
+    <div id="results"></div>
+    <div id="places" class="container-grid"></div>
+    <div id="map-container" style="margin: 5% 0;"></div>
+    <div class="flourish-embed flourish-map" data-src="visualisation/20104861" style="width: 100%; height: auto;">
+      <script src="https://public.flourish.studio/resources/embed.js"></script>
+    </div>
+    <div id="source-box">
+      <h4>자료 출처</h4>
+      <ul id="source-list"></ul>
+    </div>
+
+    <button id="showFormBtn" onclick="toggleForm()">나만의 분단장소 입력하기(현재 이용 불가)</button>
+
+    <!-- 데이터 입력 폼 -->
+    <div id="dataForm">
+      <h2>본 페이지에 해당하는 시대와 지역에 여러분이 알고 있는 분단 장소의 정보를 직접 추가해주세요.</h2>
+      <form id="dataInputForm">
+        <label for="placeName">장소명:</label>
+        <input type="text" id="placeName" name="placeName" required><br><br>
+
+        <label for="address">주소:</label>
+        <input type="text" id="address" name="address" required><br><br>
+
+        <label for="addressLink">주소 URL:</label>
+        <input type="url" id="addressLink" name="addressLink" required><br><br>
+
+        <label for="photoUrl">사진 URL(영상 URL 입력 시):</label>
+        <input type="url" id="photoUrl" name="photoUrl"><br><br>
+
+        <label for="episode">에피소드:</label>
+        <textarea id="episode" name="episode"></textarea><br><br>
+
+        <label for="link">관련 링크:</label>
+        <input type="url" id="link" name="link"><br><br>
+
+        <label for="videoLink">영상 링크(사진 URL 입력 시 불필요):</label>
+        <input type="url" id="videoLink" name="videoLink"><br><br>
+
+        <label for="source">자료 출처:</label>
+        <input type="text" id="source" name="source"><br><br>
+
+        <label for="photoSource">사진 출처:</label>
+        <input type="text" id="photoSource" name="photoSource"><br><br>
+
+        <button type="submit">데이터 제출</button>
+      </form>
+    </div>
+  </div>
+
+  </div>
+  <script type="text/javascript" src="apikey.js"></script>
+  <script>
+    const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+    const SPREADSHEET_ID = '1d5q0Kltz3AopUa5LROw6CE9iIXM7RTaNl-Cv_owFtlE';
+    const RANGE = 'Sheet1!A1:Z1000';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const year = urlParams.get('year');
+    const place = urlParams.get('place');
+
+    function fetchData(year, place) {
+      const query = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      fetch(query)
+        .then(response => response.json())
+        .then(data => {
+          const rows = data.values;
+          displayPlaces(rows, year, place);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+
+    function displayPlaces(data, year, place) {
+      let filteredData = data.filter(row => row[0] === year && row[1] === place);
+      console.log(filteredData);
+
+      let placesHtml = '';
+      const titleText = `${year}년대, ${place}의 분단`;
+
+      if (filteredData.length > 0) {
+        filteredData.forEach(row => {
+          let placeName = row[2];
+          let address = row[4];
+          let addressLink = row[5];
+          let photoUrl = row[6];
+          let episode = row[8];
+          let link = row[3];
+          let videoLink = row[10];
+          let source = row[9];
+          let photoSource = row[7];
+
+          placesHtml += ` 
+<div class="place-item" onclick="toggleExpand(this)">
+  <h3>${placeName}</h3>
+  <p><a href="${addressLink || '#'}" target="_blank">${address}</a></p>
+  ${photoUrl ? `<img src="${photoUrl}" alt="${placeName}" />` : ''}
+  ${photoSource ? `<p class="photo-source">사진 출처: ${photoSource}</p>` : ''}
+  <p>${link ? `<a href="${link}" target="_blank">관련 링크</a>` : ''}</p>
+  ${videoLink ? `<div class="video-container">${videoLink}</div>` : ''}
+  <div class="episode"><p><strong>이야기</strong></p>
+    <p>${episode}</p>
+  </div>
+</div>
+`;
+
+          document.getElementById('source-list').innerHTML += `<li>${source}</li>`;
+        });
+      } else {
+        placesHtml = '<p>해당하는 장소가 없습니다.</p>';
+      }
+
+      document.getElementById('places').innerHTML = placesHtml;
+      document.getElementById('header-title').innerText = titleText;
+    }
+
+    function toggleExpand(element) {
+      const isExpanded = element.classList.contains('expanded');
+      
+      document.querySelectorAll('.place-item').forEach(item => item.classList.remove('expanded'));
+
+      if (!isExpanded) {
+        element.classList.add('expanded');
+      }
+    }
+
+    function toggleForm() {
+      const form = document.getElementById("dataForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+     // 폼 제출 처리
+     document.getElementById("dataInputForm").addEventListener("submit", function (event) {
+  event.preventDefault(); // 기본 폼 제출 동작 방지
+
+  const placeName = document.getElementById("placeName").value;
+  const address = document.getElementById("address").value;
+  const addressLink = document.getElementById("addressLink").value;
+  const photoUrl = document.getElementById("photoUrl").value;
+  const episode = document.getElementById("episode").value;
+  const link = document.getElementById("link").value;
+  const videoLink = document.getElementById("videoLink").value;
+  const source = document.getElementById("source").value;
+  const photoSource = document.getElementById("photoSource").value;
+
+  const rowData = [
+    placeName,
+    address,
+    addressLink,
+    photoUrl,
+    episode,
+    link,
+    videoLink,
+    source,
+    photoSource,
+  ];
+
+  const query = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Sheet1:append?valueInputOption=RAW&key=${API_KEY}`;
+  fetch('https://script.google.com/macros/s/AKfycbyxCCUuKV0iVIAjCKh_M_DqO-7txEJZfvWgAJ6Ee2UPcaw2frJvOzy3LMswBGfoS0OK1Q/exec', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        column1: 'value1',
+        column2: 'value2',
+        // 추가 데이터
+    }),
+})
+    .then((response) => response.json())
+    .then((data) => {
+      alert("데이터가 성공적으로 추가되었습니다!");
+      console.log("응답 데이터:", data);
+    })
+    .catch((error) => {
+      console.error("데이터 추가 중 오류 발생:", error);
+      alert("데이터 추가 실패!");
+    });
+});
+
+
+    fetchData(year, place);
+  </script>
+</body>
+</html>

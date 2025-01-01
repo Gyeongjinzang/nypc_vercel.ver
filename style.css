@@ -1,0 +1,11 @@
+@font-face {
+    font-family: 'Hangyeoregyeolche'; /* 사용할 글꼴 이름 */
+    src: url('Hangyeoregyeolche.ttf') format('truetype'); /* 글꼴 파일 경로 */
+    font-weight: normal; /* 글꼴 두께 */
+    font-style: normal; /* 글꼴 스타일 */
+}
+
+/* 글꼴을 적용할 선택자 */
+body {
+    font-family: 'Hangyeoregyeolche', sans-serif; /* 로드한 글꼴을 적용 */
+}

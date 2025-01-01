@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>분단 쪼개기</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* 글꼴 파일 로드 */
+
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f4f4f4;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center; /* 중앙 정렬 유지 */
+      align-items: center; /* 세로 중앙 정렬 */
+      flex-direction: column;
+      min-height: 100vh;
+      text-align: center; /* 모든 텍스트 중앙 정렬 */
+    }
+
+    .container {
+      max-width: 850px; /* 최대 너비 설정 */
+      width: 100%; /* 전체 너비를 100%로 설정 */
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 중앙 정렬 유지 */
+    }
+
+    h1, p {
+      margin: 0 0 15px; /* 상하 마진 조정 */
+      width: 100%; /* 너비 100% 설정 */
+    }
+
+    select,
+    button {
+      width: 100%; /* 너비 100% 설정 */
+      max-width: 400px; /* 최대 너비 설정 */
+      margin: 10px 0; /* 위아래 마진 추가 */
+      padding: 13px 26px; /* 세로 길이 조정 */
+    }
+
+    .info-box {
+      margin: 20px auto; /* 중앙 정렬 */
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 16px;
+      line-height: 1.6;
+      width: 90%; /* 폭을 90%로 설정 */
+      max-width: 850px; /* 최대 폭 설정 */
+      text-align: center; /* 텍스트 중앙 정렬 */
+    }
+
+    button {
+      background-color: #ff8001; /* Orange color */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #e67700; /* Darker orange on hover */
+    }
+
+    #result {
+      margin-top: 20px;
+      color: #ff0101;
+      font-size: 18px;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* SVG 감싸는 컨테이너 스타일 추가 */
+    #map-container {
+      display: flex;
+      justify-content: center; /* 중앙 정렬 */
+      align-items: center; /* 세로 중앙 정렬 */
+      width: 100%; /* 너비 100% 설정 */
+      margin-top: 20px; /* 상단 마진 추가 */
+    }
+
+    /* 모바일 레이아웃 조정 */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+        display: flex; /* flexbox로 변경 */
+        flex-direction: column; /* 세로 방향으로 정렬 */
+        align-items: center; /* 중앙 정렬 유지 */
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      p {
+        font-size: 20px;
+      }
+
+      select,
+      button {
+        width: 100%; /* 모든 버튼과 드롭다운의 너비를 100%로 설정 */
+        max-width: none; /* 최대 너비 제한 해제 */
+        margin: 10px 0; /* 위아래 마진 추가 */
+        padding: 10px;
+        font-size: 15px;
+      }
+    }
+
+    .info-box h2 {
+      font-size: 20px;
+      color: #ff8001;
+      margin-bottom: 10px;
+    }
+
+    .info-box strong {
+      font-weight: bold;
+    }
+
+    .info-box p {
+      text align: justify}
+
+    img {
+      width: 50%;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="https://peacemomo.org/">
+      <img src="https://peacemomo.org/wp-content/uploads/brizy/imgs/cropped-%EB%8C%80%EC%A7%80-2-e1714701453750-249x249x1x0x248x249x1714701457.png" alt="Peace Momo Logo">
+    </a>
+    
+    <h1>분단 쪼개기</h1>
+    
+    <p>시대별, 지역별 분단 이야기</p>
+    <p>아래 지도에서 지역을 선택한 후 시대를 골라주세요</p>
+    <select id="birthYear">
+      <option value="era">시대</option>
+      <option value="1940">1940년대</option>
+      <option value="1950">1950년대</option>
+      <option value="1960">1960년대</option>
+      <option value="1970">1970년대</option>
+      <option value="1980">1980년대</option>
+      <option value="1990">1990년대</option>
+      <option value="2000">2000년대</option>
+      <option value="2010">2010년대</option>
+      <option value="2020">2020년대</option>
+    </select>
+
+    <button id="checkButton">결과 확인</button>
+    <p id="result"></p>
+    
+    <div id="map-container">
+      <object type="image/svg+xml" data="kr.svg" id="korea-map" style="max-width: 600%;"></object>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <h2>피스모모 NYPC 1기 '와우'
+    </h2>
+    <p><strong>(North East Asia Youth Peace-Diplomacy Commoners, 동북아시아 청년평화외교 커머너)</strong></p>
+    <p>
+      NYPC는 피스모모가 기획한 동북아 청년 프로그램으로, 참가자들은 지난 7월 말부터 6주 동안 매주 2회차의 일정으로 국제정치학, WPS의제, 에코페미니즘, 남북관계 등을 공부하며 어떻게 하면 평화를 '모두의 것'으로 만들 수 있을지 고민했다.
+    </p>
+    <p>
+    평소 무심코 지나가고 드나들던 거리와 건물에 출생의 비밀이 있다는 걸 알고 있는가? 본 프로젝트는 한반도의 평화를 해치는 분단을 '서사화'하는 작업에 집중해, 분단체제 아래 38선 이남의 한반도에서 분단으로 발생한 사건과 이를 증거하는 장소를 아카이빙하였다. 우리 사회의 기형적인 분단체제에 물음표를 떠올리는 시간이 되기를 바란다.
+    </p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const mapElement = document.getElementById('korea-map');
+
+      mapElement.addEventListener('load', function () {
+        const paths = mapElement.contentDocument.querySelectorAll("path"); // SVG 내부의 path 요소 선택
+        const yearSelect = document.getElementById("birthYear");
+        const resultText = document.getElementById("result");
+
+        paths.forEach((path) => {
+          path.addEventListener("click", function () {
+            // 클릭한 지역 색상 변경
+            paths.forEach(p => p.style.fill = ""); // 이전 색상 초기화
+            this.style.fill = "#ff5722"; // 선택된 지역 색상 변경
+
+            // 연도 드롭다운 보이기
+            yearSelect.style.display = "inline-block"; // 드롭다운 표시
+            
+            // 선택한 지역 ID를 저장
+            const selectedRegion = this.id;
+
+            // 드롭다운 선택 변경 시 결과 표시
+            yearSelect.onchange = function () {
+              const year = this.value;
+              if (year !== "era") {
+                resultText.textContent = `선택한 지역: ${selectedRegion}, 시대: ${year}`;
+              }
+            };
+
+            // 결과 확인 버튼 클릭 시 페이지 이동
+            document.getElementById("checkButton").onclick = function () {
+              if (yearSelect.value !== "era") {
+                // 결과 페이지로 이동 (URL과 쿼리 파라미터 수정)
+                window.location.href = `result.html?year=${yearSelect.value}&place=${selectedRegion}`;
+              } else {
+                alert("시대를 선택해주세요.");
+              }
+            };
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
